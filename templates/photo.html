@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Upload Photo</title>
+</head>
+<body>
+<div class="px-4 pt-5 my-5 text-center border-bottom">
+    <h1 class="display-4 fw-bold text-body-emphasis">PHOTO REGISTRATION</h1>
+    <div class="col-lg-6 mx-auto">
+      <p id="message" class="lead mb-4">Upload a photo of your student ID</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
+        <button id="captureButton" onclick="capturePhoto()" class="btn btn-primary btn-lg px-4 me-sm-3">Take Photo</button>
+        <button id="recaptureButton" onclick="recapture()" class="btn btn-secondary btn-lg px-4 d-none">Recapture</button>
+           <a type="button" id="complete_reg" href="{% url 'complete' %}" class="btn btn-primary btn-lg px-4 me-sm-3 d-none">Complete Registration</a>
+      </div>
+
+    </div>
+
+    <div class="container px-5">
+        <img src="https://media.istockphoto.com/id/1479746994/photo/id-card-floating-on-pink-background-identification-card-icon-driver-license-doctor-id-card.webp?b=1&s=170667a&w=0&k=20&c=Rhbqys-zbMuaXCm8x7ldrTwXpZ4m68uWKp70diPHPUo=" class="img-fluid border rounded-3 shadow-lg mb-4" alt="Example image" width="400" height="200" loading="lazy">
+    </div>
+
+    <video id="camera" width="640" height="480" autoplay></video>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('camera');
+            const captureButton = document.getElementById('captureButton');
+            const recaptureButton = document.getElementById('recaptureButton');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            let recapture = false;
+
+            function initCamera() {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then((stream) => {
+                        video.srcObject = stream;
+                    })
+                    .catch((error) => {
+                        console.error('Error accessing camera:', error);
+                    });
+            }
+
+            initCamera();
+
+            window.capturePhoto = function() {
+                // Disable the capture button to prevent multiple captures
+                captureButton.disabled = true;
+                 message.innerText = 'Ensure Your ID is clearly visible,if not press the recapture button to take another photo'
+
+                // Show the recapture button
+                recaptureButton.classList.remove('d-none');
+                complete_reg.classList.remove('d-none')
+                // Draw the current video frame onto the canvas
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Stop the video stream
+                const tracks = video.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                video.style.display = 'none';
+
+                // Get the data URL of the canvas (image in base64 format)
+                const imageDataUrl = canvas.toDataURL('image/png');
+
+                // Set the src attribute of the existing img tag to the captured image
+                const existingImg = document.querySelector('.img-fluid');
+                existingImg.src = imageDataUrl;
+
+                // Set recapture to true
+                recapture = true;
+            };
+
+            window.recapture = function() {
+                // Enable the capture button for recapturing
+                captureButton.disabled = false;
+
+                // Hide the recapture button
+                recaptureButton.classList.add('d-none');
+
+                // Clear the existing photo
+                const existingImg = document.querySelector('.img-fluid');
+                existingImg.src = 'https://media.istockphoto.com/id/1479746994/photo/id-card-floating-on-pink-background-identification-card-icon-driver-license-doctor-id-card.webp?b=1&s=170667a&w=0&k=20&c=Rhbqys-zbMuaXCm8x7ldrTwXpZ4m68uWKp70diPHPUo=';
+
+                // Set recapture to false
+                recapture = false;
+
+                // Reinitialize the camera
+                initCamera();
+                 video.style.display = 'flex';
+                 video.style.width = '50%'; // Set the width to 80% of the parent container
+                video.style.height = 'auto'; // Maintain the aspect ratio by adjusting the height automatically
+                video.style.margin = '0 auto'; // Center the video horizontally by adding margin
+
+            };
+        });
+    </script>
+</div>
+</body>
+</html>
+
