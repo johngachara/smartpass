@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>Bind Device</title>
+</head>
+<body>
+<div  class="container my-5">
+  <div class="position-relative p-5 text-center text-muted bg-body border border-dashed rounded-5">
+    <button  type="button" class="position-absolute top-0 end-0 p-3 m-3 btn-close bg-secondary bg-opacity-10 rounded-pill" aria-label="Close"></button>
+    <svg class="bi mt-5 mb-3" width="48" height="48"><use xlink:href="#check2-circle"/></svg>
+    <h1 class="text-body-emphasis">Bind Device</h1>
+    <p id="binding" class="col-lg-6 mx-auto mb-4">
+      For security the  device being used and browser will the only ones allowed during login.
+    </p>
+    <button onclick="bind()" class="btn btn-primary px-5 mb-5" type="button">
+      Bind this Device
+    </button>
+  </div>
+</div>
+
+    <script>
+        function bind(){
+    function hashString(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+        }
+        return hash.toString();
+    }
+
+    function generateUniqueIdentifier() {
+        const userAgent = navigator.userAgent || 'Unknown';
+        const language = navigator.language || 'Unknown';
+        const platform = navigator.platform || 'Unknown';
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
+
+        // Combine properties to create a unique identifier
+        const uniqueIdentifier = `${userAgent}-${language}-${platform}-${timezone}`;
+
+        // Hash the identifier to create a fixed-size string
+        const hashedIdentifier = hashString(uniqueIdentifier);
+
+        return hashedIdentifier;
+    }
+        binding.innerText = "Device Successfully binded"
+    const deviceIdentifier = generateUniqueIdentifier();
+     localStorage.setItem('deviceIdentifier', deviceIdentifier);
+        console.log(deviceIdentifier)}
+</script>
+</body>
+<script>
+    function getiden(){
+    const storedDeviceIdentifier = localStorage.getItem('deviceIdentifier');
+
+// Check if the stored identifier exists
+if (storedDeviceIdentifier) {
+    console.log('Device Identifier:', storedDeviceIdentifier);
+} else {
+    console.log('Device Identifier not found.');
+}}
+</script>
+<script>
+    function remove() {
+        localStorage.removeItem('deviceIdentifier');
+    }
+</script>
+</html>
