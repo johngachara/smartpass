@@ -10,17 +10,67 @@
 <div class="px-4 pt-5 my-5 text-center border-bottom">
     <h1 class="display-4 fw-bold text-body-emphasis">PHOTO REGISTRATION</h1>
     <div class="col-lg-6 mx-auto">
-      <p id="message" class="lead mb-4">Upload a photo of your student ID</p>
+      <p id="message" class="lead mb-4">Upload a clear photo of your face.</p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
         <button id="captureButton" onclick="capturePhoto()" class="btn btn-primary btn-lg px-4 me-sm-3">Take Photo</button>
         <button id="recaptureButton" onclick="recapture()" class="btn btn-secondary btn-lg px-4 d-none">Recapture</button>
-           <a type="button" id="complete_reg" href="{% url 'complete' %}" class="btn btn-primary btn-lg px-4 me-sm-3 d-none">Complete Registration</a>
+           <a type="button" id="complete_reg" href="{% url 'complete' %}" onclick="sendPhoto()" class="btn btn-primary btn-lg px-4 me-sm-3 d-none">Complete Registration</a>
       </div>
+        <div id="user-id" data-user-id="{{ User.id }}"></div>
+<script>
+   function sendPhoto() {
+    // Get the image data from the img element
+    const imgElement = document.querySelector('.img-fluid');
+    const imageDataUrl = imgElement.src;
+
+    // Check if there is a captured image
+    if (!imageDataUrl) {
+        console.error('No captured image to send.');
+        return;
+    }
+
+    const base64Data = imageDataUrl.split(',')[1];
+    const binaryData = atob(base64Data);
+    const arrayBuffer = new ArrayBuffer(binaryData.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < binaryData.length; i++) {
+        uint8Array[i] = binaryData.charCodeAt(i);
+    }
+    const blob = new Blob([uint8Array], { type: 'image/png' })
+    // Create a FormData object and append the image Blob
+    const formData = new FormData();
+    formData.append('photo', blob);
+
+    // Get the user ID from the data attribute
+    const userId = document.getElementById('user-id').dataset.userId;
+
+    // Send a POST request to your Django API endpoint
+    fetch(`http://localhost:8000/api/photo/26/`, {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response;  // Adjust this based on your API response format
+    })
+    .then(data => {
+        // Handle the success response
+        console.log(data);
+    })
+    .catch(error => {
+        // Handle errors
+        console.error('Error:', error);
+    });
+}
+
+</script>
 
     </div>
 
     <div class="container px-5">
-        <img src="https://media.istockphoto.com/id/1479746994/photo/id-card-floating-on-pink-background-identification-card-icon-driver-license-doctor-id-card.webp?b=1&s=170667a&w=0&k=20&c=Rhbqys-zbMuaXCm8x7ldrTwXpZ4m68uWKp70diPHPUo=" class="img-fluid border rounded-3 shadow-lg mb-4" alt="Example image" width="400" height="200" loading="lazy">
+        <img src="" class="img-fluid border rounded-3 shadow-lg mb-4" alt="Your photo will appear here" width="500" height="500" loading="lazy">
     </div>
 
     <video id="camera" width="640" height="480" autoplay></video>
@@ -49,7 +99,7 @@
             window.capturePhoto = function() {
                 // Disable the capture button to prevent multiple captures
                 captureButton.disabled = true;
-                 message.innerText = 'Ensure Your ID is clearly visible,if not press the recapture button to take another photo'
+                 message.innerText = 'Ensure Your photo is clearly visible,if not press the recapture button to take another photo'
 
                 // Show the recapture button
                 recaptureButton.classList.remove('d-none');
@@ -78,13 +128,14 @@
             window.recapture = function() {
                 // Enable the capture button for recapturing
                 captureButton.disabled = false;
-
+                message.innerText = 'Upload a Clear photo of your face'
+                complete_reg.classList.add('d-none');
                 // Hide the recapture button
                 recaptureButton.classList.add('d-none');
 
                 // Clear the existing photo
                 const existingImg = document.querySelector('.img-fluid');
-                existingImg.src = 'https://media.istockphoto.com/id/1479746994/photo/id-card-floating-on-pink-background-identification-card-icon-driver-license-doctor-id-card.webp?b=1&s=170667a&w=0&k=20&c=Rhbqys-zbMuaXCm8x7ldrTwXpZ4m68uWKp70diPHPUo=';
+                existingImg.src = '';
 
                 // Set recapture to false
                 recapture = false;
@@ -92,7 +143,6 @@
                 // Reinitialize the camera
                 initCamera();
                  video.style.display = 'flex';
-                 video.style.width = '50%'; // Set the width to 80% of the parent container
                 video.style.height = 'auto'; // Maintain the aspect ratio by adjusting the height automatically
                 video.style.margin = '0 auto'; // Center the video horizontally by adding margin
 

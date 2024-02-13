@@ -8,15 +8,17 @@
 <body>
 <div  class="container my-5">
   <div class="position-relative p-5 text-center text-muted bg-body border border-dashed rounded-5">
-    <button  type="button" class="position-absolute top-0 end-0 p-3 m-3 btn-close bg-secondary bg-opacity-10 rounded-pill" aria-label="Close"></button>
     <svg class="bi mt-5 mb-3" width="48" height="48"><use xlink:href="#check2-circle"/></svg>
     <h1 class="text-body-emphasis">Bind Device</h1>
     <p id="binding" class="col-lg-6 mx-auto mb-4">
-      For security the  device being used and browser will the only ones allowed during login.
+      For security the  device being used and browser will the only ones allowed to login the application.
     </p>
-    <button onclick="bind()" class="btn btn-primary px-5 mb-5" type="button">
+    <button id="bind_button" onclick="bind()" class="btn btn-primary px-5 mb-5" type="button">
       Bind this Device
     </button>
+      <a href="{% url 'photo_prev' User.id %}" id="photo_button" class="btn btn-primary px-5 mb-5 d-none" type="button">
+      Photo Registration
+    </a>
   </div>
 </div>
 
@@ -36,17 +38,20 @@
         const language = navigator.language || 'Unknown';
         const platform = navigator.platform || 'Unknown';
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
-
+        const screenResolution = `${window.screen.width}x${window.screen.height}` || 'Unknown';
         // Combine properties to create a unique identifier
-        const uniqueIdentifier = `${userAgent}-${language}-${platform}-${timezone}`;
+      const uniqueIdentifier = `${userAgent}-${language}-${platform}-${timezone}-${screenResolution}`;
+
 
         // Hash the identifier to create a fixed-size string
         const hashedIdentifier = hashString(uniqueIdentifier);
 
         return hashedIdentifier;
     }
-        binding.innerText = "Device Successfully binded"
     const deviceIdentifier = generateUniqueIdentifier();
+    binding.innerText = "Device Successfully binded"
+          bind_button.classList.add('d-none');
+        photo_button.classList.remove('d-none')
      localStorage.setItem('deviceIdentifier', deviceIdentifier);
         console.log(deviceIdentifier)}
 </script>

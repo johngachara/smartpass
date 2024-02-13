@@ -5,6 +5,11 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .models import UserPhoto
+from .serializers import UserPhotoSerializer
 
 from Finals.forms import  Signup
 from djangoProject20 import settings
@@ -22,7 +27,7 @@ def signup(request):
             allowed_domain = '@students.kcau.ac.ke'
             if not user_data['email'].endswith(allowed_domain):
                 adm = user_data['adm_no']
-                form.add_error('email', f'Please use the school email address {adm}{allowed_domain}.')
+                form.add_error('email', f'Please use the school email address {adm}{allowed_domain}')
                 return render(request, 'signup.html', {"Form": form})
 
             # Check if the adm_no is part of the email address
@@ -68,27 +73,47 @@ def verify_code(request,user_id):
         if submitted_code == stored_verification_code:
             # Code is correct, perform necessary actions (e.g., activate the user)
             user.is_active = True
-            user.save()
+
 
 
             # Clear the verification code from the session
             del request.session['verification_code']
-            return redirect('home')
+            return redirect('bind',user.id)
         else:
             return render(request, 'verify.html', {"User_id": user.id})
 
     return render(request,'verify.html',{"User_id":user.id})
 
 
-def bind_device(request):
-    return render(request,'bind.html')
-def take_photo(request):
-    return render(request,'photo.html')
+def bind_device(request,user_id):
+    user = User.objects.get(pk=user_id)
+    return render(request,'bind.html',{"User":user})
+def take_photo(request,user_id):
+    user = User.objects.get(pk=user_id)
+    return render(request,'photo.html',{"User":user})
 
-def photo_preview(request):
-    return render(request,'photo_prev.html')
+def photo_preview(request,user_id):
+    user = User.objects.get(pk=user_id)
+    return render(request,'photo_prev.html',{"User":user})
 
 def photo_redirect(request):
     return redirect('home')
 def home(request):
     return render(request,'home.html')
+@api_view(['POST'])
+def upload_photo(request, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    photo_data = request.data.get('photo')
+    print(photo_data)
+    print(request.data)
+    serializer = UserPhotoSerializer(data={'user': user, 'photo': photo_data})
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message': 'Photo uploaded successfully'}, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
