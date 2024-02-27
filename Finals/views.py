@@ -1,9 +1,14 @@
+import base64
 import random
-from django.contrib.auth import login
+from io import BytesIO
+
+import qrcode
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from rest_framework import status
 from rest_framework.response import Response
@@ -11,7 +16,7 @@ from rest_framework.decorators import api_view
 from .models import UserPhoto
 from .serializers import UserPhotoSerializer
 
-from Finals.forms import  Signup
+from Finals.forms import Signup, signin_form
 from djangoProject20 import settings
 
 
@@ -38,8 +43,9 @@ def signup(request):
             if User.objects.filter(email=user_data['email']).exists():
                 form.add_error('email', 'This email is already in use')
                 return render(request, 'signup.html', {"Form": form})
-
+            new_user.is_active = False
             new_user.save()
+
             # Optionally, you can proceed with email verification here
             return redirect('verif',new_user.id)
 
@@ -71,20 +77,20 @@ def verify_code(request,user_id):
     if request.method == 'POST':
         submitted_code = request.POST.get('verification_code')
         if submitted_code == stored_verification_code:
-            # Code is correct, perform necessary actions (e.g., activate the user)
-            user.is_active = True
-
-
-
-            # Clear the verification code from the session
             del request.session['verification_code']
             return redirect('bind',user.id)
         else:
+
             return render(request, 'verify.html', {"User_id": user.id})
 
     return render(request,'verify.html',{"User_id":user.id})
 
-
+def await_verification(request,user_id):
+    user = User.objects.get(pk=user_id)
+    if user.is_active == False:
+        return HttpResponse('Awaiting verification')
+    else:
+        return redirect('convert_to_qr',user.id)
 def bind_device(request,user_id):
     user = User.objects.get(pk=user_id)
     return render(request,'bind.html',{"User":user})
@@ -96,10 +102,10 @@ def photo_preview(request,user_id):
     user = User.objects.get(pk=user_id)
     return render(request,'photo_prev.html',{"User":user})
 
-def photo_redirect(request):
-    return redirect('home')
-def home(request):
-    return render(request,'home.html')
+def photo_redirect(request,user_id):
+    user = User.objects.get(pk=user_id)
+    return redirect('await',user.id)
+
 @api_view(['POST'])
 def upload_photo(request, user_id):
     try:
@@ -108,12 +114,62 @@ def upload_photo(request, user_id):
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
     photo_data = request.data.get('photo')
-    print(photo_data)
-    print(request.data)
-    serializer = UserPhotoSerializer(data={'user': user, 'photo': photo_data})
+    serializer = UserPhotoSerializer(data={'user': user.id, 'photo': photo_data})
+
 
     if serializer.is_valid():
         serializer.save()
         return Response({'message': 'Photo uploaded successfully'}, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def signin(request):
+    form = signin_form()
+    if request.method == 'POST':
+        form = signin_form(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            # Use authenticate to check if the provided credentials are valid
+            user = authenticate(request, username=username, password=password)
+
+            if user:
+                # Use login to log in the user
+
+                messages.success(request, 'Successfully logged in.')
+                return redirect('convert_to_qr',user.id)
+            else:
+                # Invalid credentials, show an error message
+                form = signin_form()
+                messages.error(request, 'Incorrect username or password')
+    return render(request, 'signin.html', {"form": form})
+
+
+def convert_to_qr(request,user_id):
+    instance = get_object_or_404(User, pk=user_id)
+    if instance.is_active == False:
+        return HttpResponse('awaiting confirmation')
+    data_to_encode = f"{instance.username} {instance.first_name} {instance.last_name} "  # Customize based on your model fields
+    qr = qrcode.QRCode(
+        version=1,
+        box_size=10,
+        border=5,
+    )
+    qr.add_data(data_to_encode)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Save the image to a BytesIO object
+    img_bytesio = BytesIO()
+    img.save(img_bytesio)
+    img_bytesio.seek(0)
+    img_base64 = base64.b64encode(img_bytesio.read()).decode('utf-8')
+
+    # Pass the base64-encoded image data to the template
+    context = {'qr_code': img_base64}
+    return render(request, 'home.html', context)
+
+def qr(request):
+    return render(request, 'qr.html')

@@ -8,11 +8,17 @@ class Signup(UserCreationForm):
     email = forms.EmailField(label="Student email",required=True)
     first_name = forms.CharField(max_length=50)
     last_name = forms.CharField(max_length=50)
-    student_id = forms.ImageField(required=True)
+
 
 
 
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'adm_no', 'first_name', 'last_name','student_id']
+        fields = ['username', 'email', 'password1', 'password2', 'adm_no', 'first_name', 'last_name']
+
+
+
+class signin_form(forms.Form):
+    username = forms.CharField(label='Username',max_length=30)
+    password = forms.CharField(label='Password',max_length=30,widget=forms.PasswordInput(attrs={"type":"password"}))
