@@ -2,10 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCA SMART PASS</title>
+    <!-- Bootstrap CSS link -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+<script>
+        function checkLocalStorage() {
+            // Retrieve the stored device identifier from local storage
+            const storedDeviceIdentifier = localStorage.getItem('deviceIdentifier');
+
+            // Expected device identifier (replace 'your_expected_identifier' with the actual value)
+            const expectedIdentifier = "{{ user.id }}";
+
+            // Check if the stored identifier matches the expected value
+            if (storedDeviceIdentifier === expectedIdentifier) {
+                 
+                
+                console.log('Device Identifier is the expected one:', storedDeviceIdentifier);
+                // Perform actions or display information for the expected identifier
+            } else {
+               window.location.href = 'http://127.0.0.1:8000/wrong'
+                
+                console.log('Device Identifier is not the expected one:', storedDeviceIdentifier);
+                // Handle the case where the identifier doesn't match the expected value
+            }
+        }
+
+        // Call the function when the document is ready or at an appropriate time
+        document.addEventListener('DOMContentLoaded', checkLocalStorage);
+    </script>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">KCA SMART PASS</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="jumbotron jumbotron-fluid">
+    <div class="container text-center">
+        <h1 class="display-4">Welcome to  KCA SMART PASS</h1>
+        <p class="lead">Your Qr Code</p>
+    </div>
+</div>
+
+<!-- Content Section -->
+<div class="container mt-5">
+   
+        <div class="col-md-6" style="display: flex;justify-content: center">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="img-fluid">
+        </div>
+</div>
+
+<!-- Bootstrap JS scripts (Popper.js and Bootstrap JS) -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 
 </body>
 </html>

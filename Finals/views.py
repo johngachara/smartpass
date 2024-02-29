@@ -136,10 +136,11 @@ def signin(request):
             user = authenticate(request, username=username, password=password)
 
             if user:
-                # Use login to log in the user
-
-                messages.success(request, 'Successfully logged in.')
-                return redirect('convert_to_qr',user.id)
+                if user.is_active == False:
+                    return render(request,'await.html')
+                else:
+                    login(request, user)
+                    return redirect('convert_to_qr',user.id)
             else:
                 # Invalid credentials, show an error message
                 form = signin_form()
@@ -150,7 +151,7 @@ def signin(request):
 def convert_to_qr(request,user_id):
     instance = get_object_or_404(User, pk=user_id)
     if instance.is_active == False:
-        return HttpResponse('awaiting confirmation')
+        return render(request,'await.html')
     data_to_encode = f"{instance.username} {instance.first_name} {instance.last_name} "  # Customize based on your model fields
     qr = qrcode.QRCode(
         version=1,
@@ -168,8 +169,11 @@ def convert_to_qr(request,user_id):
     img_base64 = base64.b64encode(img_bytesio.read()).decode('utf-8')
 
     # Pass the base64-encoded image data to the template
-    context = {'qr_code': img_base64}
+    context = {'qr_code': img_base64,'user':instance}
     return render(request, 'home.html', context)
 
 def qr(request):
     return render(request, 'qr.html')
+
+def wrong_device(request):
+    return render(request,'error.html')

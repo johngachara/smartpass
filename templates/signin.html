@@ -2,50 +2,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-    .asteriskField{
-        display: none;
-    }
-</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALLTECH</title>
+    <title>ALLTECH - Smart Pass</title>
     <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/128/8983/8983107.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-</head>
-<body class="bg-dark">
-    <div class="container-fluid d-flex align-items-center justify-content-center vh-100">
-        <script>
-        function checkLocalStorage() {
-            // Retrieve the stored device identifier from local storage
-            const storedDeviceIdentifier = localStorage.getItem('deviceIdentifier');
-
-            // Expected device identifier (replace 'your_expected_identifier' with the actual value)
-            const expectedIdentifier = 'gachara';
-
-            // Check if the stored identifier matches the expected value
-            if (storedDeviceIdentifier === expectedIdentifier) {
-                
-                console.log('Device Identifier is the expected one:', storedDeviceIdentifier);
-                // Perform actions or display information for the expected identifier
-            } else {
-                const sign = document.querySelector('.btn')
-                
-                console.log('Device Identifier is not the expected one:', storedDeviceIdentifier);
-                // Handle the case where the identifier doesn't match the expected value
-            }
+    <style>
+        body {
+            background-color: #343a40; /* Dark background color */
+            color: #fff; /* Light text color */
         }
-
-        // Call the function when the document is ready or at an appropriate time
-        document.addEventListener('DOMContentLoaded', checkLocalStorage);
-    </script>
-        <div class="card text-dark bg-white p-4">
-            <h1 class="text-center mb-4">smart pass</h1>
+        .asteriskField{
+            display: none;
+        }
+        .card {
+            background-color: #fff; /* White card background */
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .card-title {
+            color: #007bff; /* Primary color for card title */
+        }
+        .btn-primary {
+            background-color: #007bff; /* Primary button color */
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker shade on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid d-flex align-items-center justify-content-center vh-100">
+        <div class="card p-4">
+            <h1 class="card-title text-center mb-4">Smart Pass</h1>
             <form method="post" class="text-dark">
                 {% csrf_token %}
                 {{ form | crispy }}
                 <button id="signin_button" type="submit" class="btn btn-primary btn-lg btn-block mt-4">Login</button>
-                <p class="mt-5 mb-3 text-dark text-center">2024&copy;Gachara</p>
+                <p class="mt-5 mb-3 text-dark text-center">2024&copy; Gachara</p>
             </form>
         </div>
     </div>
