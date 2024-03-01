@@ -16,7 +16,7 @@ from rest_framework.decorators import api_view
 from .models import UserPhoto
 from .serializers import UserPhotoSerializer
 
-from Finals.forms import Signup, signin_form
+from Finals.forms import Signup, signin_form, UserImageForm
 from djangoProject20 import settings
 
 
@@ -47,7 +47,7 @@ def signup(request):
             new_user.save()
 
             # Optionally, you can proceed with email verification here
-            return redirect('verif',new_user.id)
+            return redirect('verif', new_user.id)
 
     else:
         form = Signup()
@@ -55,12 +55,12 @@ def signup(request):
     return render(request, 'signup.html', {"Form": form})
 
 
-def email_verification(request,user_id):
+def email_verification(request, user_id):
     user = User.objects.get(pk=user_id)
-    return render(request,'email.html',{"User":user})
+    return render(request, 'email.html', {"User": user})
 
 
-def verify_email(request,user_id):
+def verify_email(request, user_id):
     user = User.objects.get(pk=user_id)
     sender_email = settings.EMAIL_HOST_USER
     heading = "Your verification code"
@@ -68,43 +68,52 @@ def verify_email(request,user_id):
     verification_code = str(random.randint(100000, 999999))
     request.session['verification_code'] = verification_code
     email_content = f"Your Verification code is {verification_code}"
-    mail = send_mail(heading,email_content, sender_email, [recipient_email])
-    return redirect('code',user.id)
+    mail = send_mail(heading, email_content, sender_email, [recipient_email])
+    return redirect('code', user.id)
 
-def verify_code(request,user_id):
+
+def verify_code(request, user_id):
     user = User.objects.get(pk=user_id)
     stored_verification_code = request.session.get('verification_code')
     if request.method == 'POST':
         submitted_code = request.POST.get('verification_code')
         if submitted_code == stored_verification_code:
             del request.session['verification_code']
-            return redirect('bind',user.id)
+            return redirect('bind', user.id)
         else:
 
             return render(request, 'verify.html', {"User_id": user.id})
 
-    return render(request,'verify.html',{"User_id":user.id})
+    return render(request, 'verify.html', {"User_id": user.id})
 
-def await_verification(request,user_id):
+
+def await_verification(request, user_id):
     user = User.objects.get(pk=user_id)
     if user.is_active == False:
         return HttpResponse('Awaiting verification')
     else:
-        return redirect('convert_to_qr',user.id)
-def bind_device(request,user_id):
-    user = User.objects.get(pk=user_id)
-    return render(request,'bind.html',{"User":user})
-def take_photo(request,user_id):
-    user = User.objects.get(pk=user_id)
-    return render(request,'photo.html',{"User":user})
+        return redirect('convert_to_qr', user.id)
 
-def photo_preview(request,user_id):
-    user = User.objects.get(pk=user_id)
-    return render(request,'photo_prev.html',{"User":user})
 
-def photo_redirect(request,user_id):
+def bind_device(request, user_id):
     user = User.objects.get(pk=user_id)
-    return redirect('await',user.id)
+    return render(request, 'bind.html', {"User": user})
+
+
+def take_photo(request, user_id):
+    user = User.objects.get(pk=user_id)
+    return render(request, 'photo.html', {"User": user})
+
+
+def photo_preview(request, user_id):
+    user = User.objects.get(pk=user_id)
+    return render(request, 'photo_prev.html', {"User": user})
+
+
+def photo_redirect(request, user_id):
+    user = User.objects.get(pk=user_id)
+    return redirect('await', user.id)
+
 
 @api_view(['POST'])
 def upload_photo(request, user_id):
@@ -116,9 +125,12 @@ def upload_photo(request, user_id):
     photo_data = request.data.get('photo')
     serializer = UserPhotoSerializer(data={'user': user.id, 'photo': photo_data})
 
-
     if serializer.is_valid():
         serializer.save()
+        data = serializer.data
+        new_photo = UserPhoto(user=user, photo=data['photo'])
+        new_photo.save()
+
         return Response({'message': 'Photo uploaded successfully'}, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -137,10 +149,10 @@ def signin(request):
 
             if user:
                 if user.is_active == False:
-                    return render(request,'await.html')
+                    return render(request, 'await.html')
                 else:
                     login(request, user)
-                    return redirect('convert_to_qr',user.id)
+                    return redirect('convert_to_qr', user.id)
             else:
                 # Invalid credentials, show an error message
                 form = signin_form()
@@ -148,10 +160,10 @@ def signin(request):
     return render(request, 'signin.html', {"form": form})
 
 
-def convert_to_qr(request,user_id):
+def convert_to_qr(request, user_id):
     instance = get_object_or_404(User, pk=user_id)
     if instance.is_active == False:
-        return render(request,'await.html')
+        return render(request, 'await.html')
     data_to_encode = f"{instance.username} {instance.first_name} {instance.last_name} "  # Customize based on your model fields
     qr = qrcode.QRCode(
         version=1,
@@ -169,11 +181,37 @@ def convert_to_qr(request,user_id):
     img_base64 = base64.b64encode(img_bytesio.read()).decode('utf-8')
 
     # Pass the base64-encoded image data to the template
-    context = {'qr_code': img_base64,'user':instance}
+    context = {'qr_code': img_base64, 'user': instance}
     return render(request, 'home.html', context)
+
 
 def qr(request):
     return render(request, 'qr.html')
 
+
+def await_verification(request, user_id):
+    user = User.objects.get(pk=user_id)
+    if user.is_active == False:
+        return render(request, 'await.html')
+    else:
+        return redirect('convert_to_qr', user.id)
+
+
+def activate_user_page(request):
+    users = User.objects.filter(is_active=False)
+    return render(request, 'activate_user_page.html', {'users': users})
+
+
+def view_inactive_user(request, user_id):
+    user = User.objects.get(pk=user_id)
+    picture = user.userphoto_set.all()
+    return render(request, 'view_user.html', {"user": user, "picture": picture})
+
+
 def wrong_device(request):
-    return render(request,'error.html')
+    return render(request, 'error.html')
+
+
+def show_photos(request):
+    photos = UserPhoto.objects.all()
+    return render(request,'show_photo.html', {"photos": photos})

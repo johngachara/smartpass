@@ -2,6 +2,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 
+from Finals.models import UserPhoto
+
 
 class Signup(UserCreationForm):
     adm_no = forms.CharField(max_length=8)
@@ -22,3 +24,9 @@ class Signup(UserCreationForm):
 class signin_form(forms.Form):
     username = forms.CharField(label='Username',max_length=30)
     password = forms.CharField(label='Password',max_length=30,widget=forms.PasswordInput(attrs={"type":"password"}))
+
+
+class UserImageForm(forms.ModelForm):
+    class Meta:
+        model = UserPhoto
+        fields = ['photo']

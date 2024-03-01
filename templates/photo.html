@@ -8,9 +8,6 @@
     <title>Upload Photo</title>
 </head>
 <body>
-<script>
-    import React from "react";
-</script>
 <div class="px-4 pt-5 my-5 text-center border-bottom">
     <h1 class="display-4 fw-bold text-body-emphasis">PHOTO REGISTRATION</h1>
     <div class="col-lg-6 mx-auto">
@@ -18,6 +15,7 @@
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
         <button id="captureButton" onclick="capturePhoto()" class="btn btn-primary btn-lg px-4 me-sm-3">Take Photo</button>
         <button id="recaptureButton" onclick="recapture()" class="btn btn-secondary btn-lg px-4 d-none">Recapture</button>
+          <button onclick="sendPhoto()"  class="btn btn-secondary btn-lg px-4 ">Send Photo</button>
            <a type="button" id="complete_reg" href="{% url 'complete' User.id %}" onclick="sendPhoto()" class="btn btn-primary btn-lg px-4 me-sm-3 d-none">Complete Registration</a>
       </div>
         <div id="user-id" data-user-id="{{ User.id }}"></div>
@@ -49,7 +47,7 @@
     const userId = {{ User.id }}
 
     // Send a POST request to your Django API endpoint
-    fetch(`http://localhost:8000/api/photo/${userId}/`, {
+    fetch(`http://127.0.0.1:3000/api/photo/${userId}/`, {
         method: 'POST',
         body: formData,
     })
