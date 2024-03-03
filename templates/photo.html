@@ -15,13 +15,16 @@
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
         <button id="captureButton" onclick="capturePhoto()" class="btn btn-primary btn-lg px-4 me-sm-3">Take Photo</button>
         <button id="recaptureButton" onclick="recapture()" class="btn btn-secondary btn-lg px-4 d-none">Recapture</button>
-          <button onclick="sendPhoto()"  class="btn btn-secondary btn-lg px-4 ">Send Photo</button>
-           <a type="button" id="complete_reg" href="{% url 'complete' User.id %}" onclick="sendPhoto()" class="btn btn-primary btn-lg px-4 me-sm-3 d-none">Complete Registration</a>
+          <button id="uploadButton" onclick="sendPhoto()"  class="btn btn-secondary btn-lg px-4 d-none">Upload This Photo</button>
+           <a type="button" id="complete_reg" href="{% url 'complete' User.id %}" class="btn btn-primary btn-lg px-4 me-sm-3 d-none">Complete Registration</a>
       </div>
         <div id="user-id" data-user-id="{{ User.id }}"></div>
 <script>
    function sendPhoto() {
     // Get the image data from the img element
+       recaptureButton.classList.add('d-none')
+       uploadButton.classList.add('d-none')
+       complete_reg.classList.remove('d-none')
     const imgElement = document.querySelector('.img-fluid');
     const imageDataUrl = imgElement.src;
 
@@ -41,13 +44,13 @@
     const blob = new Blob([uint8Array], { type: 'image/png' })
     // Create a FormData object and append the image Blob
     const formData = new FormData();
-    formData.append('photo', blob,`{{ User.username }}photo.png`);
+    formData.append('photo', blob,`{{ User.username }}.png`);
 
     // Get the user ID from the data attribute
     const userId = {{ User.id }}
 
     // Send a POST request to your Django API endpoint
-    fetch(`http://127.0.0.1:3000/api/photo/${userId}/`, {
+    fetch(`http://127.0.0.1:8000/api/photo/${userId}/`, {
         method: 'POST',
         body: formData,
     })
@@ -101,11 +104,13 @@
             window.capturePhoto = function() {
                 // Disable the capture button to prevent multiple captures
                 captureButton.disabled = true;
+                captureButton.classList.add('d-none')
+                 uploadButton.classList.remove('d-none')
+                complete_reg.classList.add('d-none');
                  message.innerText = 'Ensure Your photo is clearly visible,if not press the recapture button to take another photo'
 
                 // Show the recapture button
                 recaptureButton.classList.remove('d-none');
-                complete_reg.classList.remove('d-none')
                 // Draw the current video frame onto the canvas
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
@@ -130,6 +135,8 @@
             window.recapture = function() {
                 // Enable the capture button for recapturing
                 captureButton.disabled = false;
+                captureButton.classList.remove('d-none')
+                uploadButton.classList.add('d-none')
                 message.innerText = 'Upload a Clear photo of your face'
                 complete_reg.classList.add('d-none');
                 // Hide the recapture button

@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View User</title>
     <!-- Include Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Additional styles to make the card larger */
+        .card {
+            width: 20rem;
+        }
+
+        /* Style to add some space between the buttons */
+        .button-space {
+            margin-right: 10px;
+        }
+    </style>
 </head>
+
 <body>
+{% include 'navbar.html' %}
     <div class="container mt-5">
         <h2>User Information</h2>
-        <div class="card mt-3" style="width: 18rem;">
-            <img src="{{ picture.url }}" class="card-img-top" alt="Identification Card">
+        <div class="card mt-3">
+            <img src="{{ picture.photo.url }}" class="card-img-top" alt="Identification Card">
             <div class="card-body">
                 <h5 class="card-title">{{ user.username }}</h5>
                 <p class="card-text">First Name: {{ user.first_name }}</p>
                 <p class="card-text">Last Name: {{ user.last_name }}</p>
                 <p class="card-text">Email: {{ user.email }}</p>
-                
-               
+
+                <!-- Add two simple Bootstrap buttons -->
+                <a href="{% url 'activate_user' user.id %}" type="button" class="btn btn-primary button-space">Activate</a>
+                <a href="{% url 'decline_inactive_user' user.id %}" type="button" class="btn btn-danger">Decline</a>
             </div>
         </div>
     </div>
@@ -27,4 +43,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
+
 </html>

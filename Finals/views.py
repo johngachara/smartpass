@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import UserPhoto
-from .serializers import UserPhotoSerializer
+from .serializers import UserPhotoSerializer, UserSerializer
 
 from Finals.forms import Signup, signin_form, UserImageForm
 from djangoProject20 import settings
@@ -164,7 +164,8 @@ def convert_to_qr(request, user_id):
     instance = get_object_or_404(User, pk=user_id)
     if instance.is_active == False:
         return render(request, 'await.html')
-    data_to_encode = f"{instance.username} {instance.first_name} {instance.last_name} "  # Customize based on your model fields
+    instance_photo = UserPhoto.objects.filter(user=instance).first()
+    data_to_encode = f"{instance.username} {instance.first_name} {instance.last_name} {instance_photo} "  # Customize based on your model fields
     qr = qrcode.QRCode(
         version=1,
         box_size=10,
@@ -196,7 +197,7 @@ def await_verification(request, user_id):
     else:
         return redirect('convert_to_qr', user.id)
 
-
+#For Serverside
 def activate_user_page(request):
     users = User.objects.filter(is_active=False)
     return render(request, 'activate_user_page.html', {'users': users})
@@ -204,10 +205,26 @@ def activate_user_page(request):
 
 def view_inactive_user(request, user_id):
     user = User.objects.get(pk=user_id)
-    picture = user.userphoto_set.all()
+    picture = UserPhoto.objects.filter(user=user).first()
+
     return render(request, 'view_user.html', {"user": user, "picture": picture})
 
+def decline_inactive_user(request, user_id):
+    user = User.objects.get(pk=user_id)
+    sender_email = settings.EMAIL_HOST_USER
+    heading = "Account Declined"
+    recipient_email = user.email
+    email_content = "Your account has been declined as your provided details do not match.Try signing up again with the correct details."
+    mail = send_mail(heading, email_content, sender_email, [recipient_email])
+    user.delete()
+    return redirect('activate')
 
+
+def activate_user(request, user_id):
+    user = User.objects.get(pk=user_id)
+    user.is_active = True
+    user.save()
+    return redirect('activate')
 def wrong_device(request):
     return render(request, 'error.html')
 
@@ -215,3 +232,12 @@ def wrong_device(request):
 def show_photos(request):
     photos = UserPhoto.objects.all()
     return render(request,'show_photo.html', {"photos": photos})
+
+
+#For serverless
+@api_view(['GET'])
+def get_inactive_users(request):
+    if request.method == 'GET':
+        users = User.objects.filter(is_active=False)
+        serializer = UserSerializer(instance=users, many=True)
+        return Response({"data":serializer.data})
