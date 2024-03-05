@@ -202,13 +202,13 @@ def activate_user_page(request):
     users = User.objects.filter(is_active=False)
     return render(request, 'activate_user_page.html', {'users': users})
 
-
+#For serverSide
 def view_inactive_user(request, user_id):
     user = User.objects.get(pk=user_id)
     picture = UserPhoto.objects.filter(user=user).first()
 
     return render(request, 'view_user.html', {"user": user, "picture": picture})
-
+#For Serverside
 def decline_inactive_user(request, user_id):
     user = User.objects.get(pk=user_id)
     sender_email = settings.EMAIL_HOST_USER
@@ -219,7 +219,7 @@ def decline_inactive_user(request, user_id):
     user.delete()
     return redirect('activate')
 
-
+#For Serverside
 def activate_user(request, user_id):
     user = User.objects.get(pk=user_id)
     user.is_active = True
@@ -241,3 +241,49 @@ def get_inactive_users(request):
         users = User.objects.filter(is_active=False)
         serializer = UserSerializer(instance=users, many=True)
         return Response({"data":serializer.data})
+
+
+#For Serverless
+@api_view(['GET'])
+def get_inactive_user(request, id):
+    try:
+        user = User.objects.get(pk=id)
+        serializer = UserSerializer(instance=user)
+        user_photo = UserPhoto.objects.filter(user=user).first()
+        serializer2 = UserPhotoSerializer(instance=user_photo)
+        return Response({"user_data": serializer.data, "user_photo_data": serializer2.data})
+    except User.DoesNotExist:
+        return Response({"Error": "User with the given id not found"})
+
+
+#For Serverless
+@api_view(['PUT'])
+def activate_users(request, id):
+    if request.method == 'PUT':
+        user = User.objects.get(pk=id)
+        user.is_active = True
+        user.save()
+        return Response({"message": "User activated"})
+
+#for serverside
+@api_view(['DELETE'])
+def deactivate_users(request, id):
+    if request.method == 'DELETE':
+        user = User.objects.get(pk=id)
+        user.delete()
+        return Response({"message": "User deleted"})
+
+@api_view(['GET'])
+def get_active_users(request):
+    if request.method == 'GET':
+        users = User.objects.filter(is_active=True)
+        serializer = UserSerializer(instance=users, many=True)
+        return Response({"users": serializer.data})
+
+@api_view(['PUT'])
+def deactivate(request, id):
+    if request.method == 'PUT':
+        user = User.objects.get(pk=id)
+        user.is_active = False
+        user.save()
+        return Response({'Message': 'User deactivated'})
