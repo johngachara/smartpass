@@ -9,5 +9,4 @@ pillow==10.2.0
 pypng==0.20220715.0
 pytz==2024.1
 qrcode==7.4.2
-sqlparse @ file:///croot/sqlparse_1690901927333/work
 typing_extensions==4.10.0
