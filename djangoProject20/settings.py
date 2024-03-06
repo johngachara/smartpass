@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-5^zsx((54ik)gw-pp8h^sq#m&xuz@s2#a8k0ht$n60e*-g25p0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['gachara.pythonanywhere.com']
 
 
 # Application definition
