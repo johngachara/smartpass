@@ -10,7 +10,7 @@ class Signup(UserCreationForm):
     email = forms.EmailField(label="Student email",required=True)
     first_name = forms.CharField(max_length=50)
     last_name = forms.CharField(max_length=50)
-    deactivated = forms.BooleanField(disabled=True)
+
 
 
 
@@ -18,7 +18,7 @@ class Signup(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'adm_no', 'first_name', 'last_name','deactivated']
+        fields = ['username', 'email', 'password1', 'password2', 'adm_no', 'first_name', 'last_name']
 
 
 
