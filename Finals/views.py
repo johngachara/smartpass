@@ -13,8 +13,8 @@ from django.contrib.auth.forms import UserCreationForm
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import UserPhoto
-from .serializers import UserPhotoSerializer, UserSerializer
+from .models import UserPhoto, UserDetails
+from .serializers import UserPhotoSerializer, UserSerializer, UserProfileSerializer
 
 from Finals.forms import Signup, signin_form, UserImageForm
 from djangoProject20 import settings
@@ -45,6 +45,7 @@ def signup(request):
                 return render(request, 'signup.html', {"Form": form})
             new_user.is_active = False
             new_user.save()
+            UserDetails.objects.create(user=new_user,admission_number=user_data['adm_no'],phone_number=user_data['phone_number'],school_id=user_data['school_id'])
 
             # Optionally, you can proceed with email verification here
             return redirect('verif', new_user.id)
@@ -144,8 +145,10 @@ def signin(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
 
+
             # Use authenticate to check if the provided credentials are valid
             user = authenticate(request, username=username, password=password)
+
 
             if user:
                 if user.is_active == False:
@@ -250,8 +253,10 @@ def get_inactive_user(request, id):
         user = User.objects.get(pk=id)
         serializer = UserSerializer(instance=user)
         user_photo = UserPhoto.objects.filter(user=user).first()
+        user_details = UserDetails.objects.get(user=user)
+        serializer3 = UserProfileSerializer(instance=user_details)
         serializer2 = UserPhotoSerializer(instance=user_photo)
-        return Response({"user_data": serializer.data, "user_photo_data": serializer2.data})
+        return Response({"user_data": serializer.data, "user_photo_data": serializer2.data,"user_details":serializer3.data})
     except User.DoesNotExist:
         return Response({"Error": "User with the given id not found"})
 
