@@ -1,4 +1,3 @@
-User
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,33 +90,14 @@ User
             let recapture = false;
 
             function initCamera() {
-       navigator.mediaDevices.enumerateDevices()
-           .then(devices => {
-               const video = document.getElementById('camera');
-               const constraints = {
-                   video: {
-                       facingMode: isFrontCamera ? 'user' : 'environment',
-                   },
-               };
-
-               navigator.mediaDevices.getUserMedia(constraints)
-                   .then((stream) => {
-                       // Stop the existing video stream
-                       const existingStream = video.srcObject;
-                       if (existingStream) {
-                           const tracks = existingStream.getTracks();
-                           tracks.forEach(track => track.stop());
-                       }
-
-                       // Set the new stream to the video element
-                       video.srcObject = stream;
-                   })
-                   .catch((error) => {
-                       console.error('Error accessing camera:', error);
-                   });
-           })
-           .catch(err => console.error('Error enumerating devices:', err));
-   }
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then((stream) => {
+                        video.srcObject = stream;
+                    })
+                    .catch((error) => {
+                        console.error('Error accessing camera:', error);
+                    });
+            }
 
             initCamera();
 
