@@ -9,75 +9,7 @@
 </head>
 <body>
 <div class="px-4 pt-5 my-5 text-center border-bottom">
-    <h1 class="display-4 fw-bold text-body-emphasis">PHOTO REGISTRATION</h1>
-    <div class="col-lg-6 mx-auto">
-      <p id="message" class="lead mb-4">Upload a clear photo of your face.</p>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
-        <button id="captureButton" onclick="capturePhoto()" class="btn btn-primary btn-lg px-4 me-sm-3">Take Photo</button>
-        <button id="recaptureButton" onclick="recapture()" class="btn btn-secondary btn-lg px-4 d-none">Recapture</button>
-          <button id="uploadButton" onclick="sendPhoto()"  class="btn btn-secondary btn-lg px-4 d-none">Upload This Photo</button>
-           <a type="button" id="complete_reg" href="{% url 'complete' User.id %}" class="btn btn-primary btn-lg px-4 me-sm-3 d-none">Complete Registration</a>
-      </div>
-        <div id="user-id" data-user-id="{{ User.id }}"></div>
-<script>
-   function sendPhoto() {
-    // Get the image data from the img element
-       recaptureButton.classList.add('d-none')
-       uploadButton.classList.add('d-none')
-       complete_reg.classList.remove('d-none')
-    const imgElement = document.querySelector('.img-fluid');
-    const imageDataUrl = imgElement.src;
-
-    // Check if there is a captured image
-    if (!imageDataUrl) {
-        console.error('No captured image to send.');
-        return;
-    }
-
-    const base64Data = imageDataUrl.split(',')[1];
-    const binaryData = atob(base64Data);
-    const arrayBuffer = new ArrayBuffer(binaryData.length);
-    const uint8Array = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < binaryData.length; i++) {
-        uint8Array[i] = binaryData.charCodeAt(i);
-    }
-    const blob = new Blob([uint8Array], { type: 'image/png' })
-    // Create a FormData object and append the image Blob
-    const formData = new FormData();
-    formData.append('photo', blob,`{{ User.username }}.png`);
-
-    // Get the user ID from the data attribute
-    const userId = {{ User.id }}
-
-    // Send a POST request to your Django API endpoint
-    fetch(`http://127.0.0.1:8000/api/photo/${userId}/`, {
-        method: 'POST',
-        body: formData,
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response;  // Adjust this based on your API response format
-    })
-    .then(data => {
-        // Handle the success response
-        console.log(data);
-    })
-    .catch(error => {
-        // Handle errors
-        console.error('Error:', error);
-    });
-}
-
-</script>
-
-    </div>
-
-    <div class="container px-5">
-        <img src="" class="img-fluid border rounded-3 shadow-lg mb-4" alt="Your photo will appear here" width="500" height="500" loading="lazy">
-    </div>
-
+    <!-- ... (your existing code) ... -->
     <video id="camera" width="640" height="480" autoplay></video>
 
     <script>
@@ -85,12 +17,29 @@
             const video = document.getElementById('camera');
             const captureButton = document.getElementById('captureButton');
             const recaptureButton = document.getElementById('recaptureButton');
+            const uploadButton = document.getElementById('uploadButton');
+            const completeRegButton = document.getElementById('complete_reg');
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             let recapture = false;
 
             function initCamera() {
-                navigator.mediaDevices.getUserMedia({ video: true })
+                navigator.mediaDevices.enumerateDevices()
+                    .then(devices => {
+                        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                        if (videoDevices.length > 1) {
+                            // If there are multiple cameras, toggle between them
+                            const currentDeviceIndex = videoDevices.findIndex(device => device.label === video.srcObject.getVideoTracks()[0].label);
+                            const nextDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
+                            const nextDeviceId = videoDevices[nextDeviceIndex].deviceId;
+                            const constraints = { video: { deviceId: { exact: nextDeviceId } } };
+
+                            return navigator.mediaDevices.getUserMedia(constraints);
+                        } else {
+                            // If there is only one camera, use it
+                            return navigator.mediaDevices.getUserMedia({ video: true });
+                        }
+                    })
                     .then((stream) => {
                         video.srcObject = stream;
                     })
@@ -102,63 +51,23 @@
             initCamera();
 
             window.capturePhoto = function() {
-                // Disable the capture button to prevent multiple captures
-                captureButton.disabled = true;
-                captureButton.classList.add('d-none')
-                 uploadButton.classList.remove('d-none')
-                complete_reg.classList.add('d-none');
-                 message.innerText = 'Ensure Your photo is clearly visible,if not press the recapture button to take another photo'
-
-                // Show the recapture button
-                recaptureButton.classList.remove('d-none');
-                // Draw the current video frame onto the canvas
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                // Stop the video stream
-                const tracks = video.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-                video.style.display = 'none';
-
-                // Get the data URL of the canvas (image in base64 format)
-                const imageDataUrl = canvas.toDataURL('image/png');
-
-                // Set the src attribute of the existing img tag to the captured image
-                const existingImg = document.querySelector('.img-fluid');
-                existingImg.src = imageDataUrl;
-
-                // Set recapture to true
-                recapture = true;
+                // ... (your existing capturePhoto code) ...
             };
 
             window.recapture = function() {
-                // Enable the capture button for recapturing
-                captureButton.disabled = false;
-                captureButton.classList.remove('d-none')
-                uploadButton.classList.add('d-none')
-                message.innerText = 'Upload a Clear photo of your face'
-                complete_reg.classList.add('d-none');
-                // Hide the recapture button
-                recaptureButton.classList.add('d-none');
-
-                // Clear the existing photo
-                const existingImg = document.querySelector('.img-fluid');
-                existingImg.src = '';
-
-                // Set recapture to false
-                recapture = false;
-
-                // Reinitialize the camera
-                initCamera();
-                 video.style.display = 'flex';
-                video.style.height = 'auto'; // Maintain the aspect ratio by adjusting the height automatically
-                video.style.margin = '0 auto'; // Center the video horizontally by adding margin
-
+                // ... (your existing recapture code) ...
             };
+
+            window.sendPhoto = function() {
+                // ... (your existing sendPhoto code) ...
+            };
+
+            // Add a click event listener to the captureButton to toggle between front and back cameras
+            captureButton.addEventListener('click', () => {
+                initCamera();
+            });
         });
     </script>
 </div>
 </body>
 </html>
-
