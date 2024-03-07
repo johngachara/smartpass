@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import UserPhoto
+from .models import UserPhoto, UserDetails
+
 
 class UserPhotoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,5 +17,5 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = UserDetails
         fields = ['user','admission_number','phone_number','school_id']
