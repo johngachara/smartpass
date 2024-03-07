@@ -168,7 +168,8 @@ def convert_to_qr(request, user_id):
     if instance.is_active == False:
         return render(request, 'await.html')
     instance_photo = UserPhoto.objects.filter(user=instance).first()
-    data_to_encode = f"{instance.username} {instance.first_name} {instance.last_name} {instance_photo} "  # Customize based on your model fields
+    instance_details = UserDetails.objects.get(user=instance)
+    data_to_encode = {'name':f"{instance.first_name} {instance.last_name}",'admission':instance_details.admission_number} # Customize based on your model fields
     qr = qrcode.QRCode(
         version=1,
         box_size=10,
