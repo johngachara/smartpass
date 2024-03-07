@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-5^zsx((54ik)gw-pp8h^sq#m&xuz@s2#a8k0ht$n60e*-g25p0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['gachara.pythonanywhere.com']
+ALLOWED_HOSTS = ['gachara.pythonanywhere.com','127.0.0.1']
 
 
 # Application definition
@@ -80,12 +80,9 @@ WSGI_APPLICATION = 'djangoProject20.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+
+
+
 
 
 # Password validation

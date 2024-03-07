@@ -13,7 +13,7 @@
         <p class="col-lg-10 fs-4">Fill in your details.</p>
       </div>
       <div class="col-md-10 mx-auto col-lg-5">
-        <form method="post" class="p-4 p-md-5 border rounded-3 bg-body-tertiary" enctype="multipart/form-data" action="{% url 'signup' %}">
+        <form style="font-size: large" method="post" class="p-4 p-md-5 border rounded-3 bg-body-tertiary" enctype="multipart/form-data" action="{% url 'signup' %}">
              {% csrf_token %}
             {{ Form | crispy }}
 
