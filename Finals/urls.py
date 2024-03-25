@@ -32,5 +32,5 @@ urlpatterns = [
     path('api/active',views.get_active_users,name='get_active_users'),
     path('api/deactivate2/<int:id>',views.deactivate,name='deactivate'),
     path('camera/<int:id>',views.camera,name='camera'),
-    path('logout',views.logout,name='logout')
+    path('logout',views.logout_view,name='logout')
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
