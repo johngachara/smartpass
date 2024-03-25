@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
+from django.contrib import messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -145,3 +146,10 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'johngachara29@gmail.com'  # Your Gmail email address
 EMAIL_HOST_PASSWORD = 'ahusittblaihpjme'
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert alert-success alert-dismissible fade show',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert alert-danger alert-dismissible fade show',
+}

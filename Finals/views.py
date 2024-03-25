@@ -87,8 +87,8 @@ def verify_code(request, user_id):
             del request.session['verification_code']
             return redirect('bind', user.id)
         else:
-            message = 'invalid verification code'
-            return render(request, 'verify.html', {"User_id": user.id, "message": message})
+            messages.error(request,"incorrect verification code")
+            return render(request, 'verify.html', {"User_id": user.id})
 
     return render(request, 'verify.html', {"User_id": user.id})
 
@@ -142,7 +142,9 @@ def upload_photo(request, user_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+def logout(request):
+    logout(request)
+    return redirect('signin')
 
 
 def signin(request):
@@ -199,7 +201,8 @@ def convert_to_qr(request, user_id):
     context = {'qr_code': img_base64, 'user': instance,'date':time.date()}
     return render(request, 'home.html', context)
 
-
+def landing(request):
+    return render(request,'landing.html')
 def qr(request):
     return render(request, 'qr.html')
 

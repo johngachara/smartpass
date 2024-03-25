@@ -7,11 +7,8 @@
 </head>
 <body>
 
-
+{% include 'alerts.html' %}
 <div class="container mt-5">
-    {% if message %}
-    {{ message }}
-    {% endif %}
     <div class="card mx-auto" style="max-width: 600px;">
         <div class="card-header">
             <h1 class="h3 mb-3 fw-normal text-center">Enter The Verification Code</h1>

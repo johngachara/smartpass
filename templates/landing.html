@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Smart Pass</title>
+</head>
+<body>
+
+  <div class="px-4 py-5 my-5 text-center">
+
+    <h1 class="display-5 fw-bold text-body-emphasis">KCA SMART PASS</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4">Welcome to kca Smart pass. An alternative access control application for students.</p>
+         <p class="lead mb-4">If you do not have an account you must follow these guidelines for successful registration:
+     </p>
+        <p>
+            1. You must upload a copy of your school id and a photo of your face which will be used for activation of your account(All accounts remain inactive until activated by the application admin)
+           
+        </p>
+        <p> 2. Only school email addresses are accepted in registration</p>
+        <p> 3.Email identity is checked using a 6 digit code.</p>
+        <p>4. The device that is signing will by default be  the only device allowed to login.</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href={% url 'signin' %} type="button" class="btn btn-primary btn-lg px-4 gap-3">Login</a>
+        <a href={% url 'signup' %} type="button" class="btn btn-outline-secondary btn-lg px-4">Create Account</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
