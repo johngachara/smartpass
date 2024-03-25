@@ -1,5 +1,6 @@
 import base64
 import random
+
 from io import BytesIO
 
 import qrcode
@@ -10,6 +11,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -186,7 +188,9 @@ def convert_to_qr(request, user_id):
     img_base64 = base64.b64encode(img_bytesio.read()).decode('utf-8')
 
     # Pass the base64-encoded image data to the template
-    context = {'qr_code': img_base64, 'user': instance}
+    time = timezone.now()
+
+    context = {'qr_code': img_base64, 'user': instance,'date':time.date()}
     return render(request, 'home.html', context)
 
 
@@ -210,10 +214,11 @@ def activate_user_page(request):
 def view_inactive_user(request, user_id):
     user = User.objects.get(pk=user_id)
     picture = UserPhoto.objects.filter(user=user).first()
-    print(picture)
+
     details = UserDetails.objects.filter(user=user).first()
+
     if details:
-        details = details.school_id
+        details = details
     return render(request, 'view_user.html', {"user": user, "picture": picture,"details": details})
 #For Serverside
 def decline_inactive_user(request, user_id):
@@ -296,5 +301,6 @@ def deactivate(request, id):
         user.is_active = False
         user.save()
         return Response({'Message': 'User is deactivated'})
+
 
 

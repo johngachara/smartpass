@@ -17,21 +17,31 @@
         .button-space {
             margin-right: 10px;
         }
+
+        /* Style to adjust the size of the images */
+        .card-img-top {
+            height: 200px; /* Set the height of the image */
+            object-fit: cover; /* Ensure the image covers the entire space */
+            margin-bottom: 10px; /* Add some spacing between images */
+        }
     </style>
 </head>
 
 <body>
-{% include 'navbar.html' %}
+    {% include 'navbar.html' %}
     <div class="container mt-5">
         <h2>User Information</h2>
         <div class="card mt-3">
+            <!-- Style the image section -->
             <img src="{{ picture.photo.url }}" class="card-img-top" alt="Identification Card">
-            <img src="{{ details.url }}" class="card-img-top" alt="school Card">
+            <img src="{{ details.school_id.url }}" class="card-img-top" alt="school Card">
             <div class="card-body">
                 <h5 class="card-title">{{ user.username }}</h5>
                 <p class="card-text">First Name: {{ user.first_name }}</p>
                 <p class="card-text">Last Name: {{ user.last_name }}</p>
                 <p class="card-text">Email: {{ user.email }}</p>
+                <p class="card-text">Phone: {{ details.phone_number }}</p>
+                 <p class="card-text">School ID: {{ details.admission_number }}</p>
 
                 <!-- Add two simple Bootstrap buttons -->
                 <a href={% url 'qr' %} type="button" class="btn btn-primary button-space">Back to scan</a>
