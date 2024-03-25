@@ -15,7 +15,7 @@
     <div class="row">
         <div class="col-md-6 offset-md-3">
             <div class="card">
-              
+               
                 <div class="card-body">
                     <h2 class="card-title text-center">QR Code Scanner</h2>
                     <video id="preview" class="w-100"></video>
@@ -35,7 +35,8 @@
             </div>
             <div class="modal-body">
                 <p id="scannedData"></p>
-               
+                <a href="#" id="RedLink" class="btn btn-primary">View User</a> <!-- Added class="btn btn-primary" -->
+                <button id="NextButton" class="btn btn-primary">Next</button>
             </div>
         </div>
     </div>
@@ -63,17 +64,24 @@
 
         scanner.addListener('scan', (content) => {
             const scannedDataElement = document.getElementById('scannedData');
-            const scannedImageElement = document.getElementById('scannedImage');
 
             if (content.trim() !== '') {
-                // Display the scanned data in the modal
+                // Parse the JSON-like string into a JavaScript object
+                const data = JSON.parse(content.replace(/'/g, '"')); // Replace single quotes with double quotes for valid JSON parsing
                 
-        
-                console.log(content)
-                scannedDataElement.innerText = content;
+                // Access the values of the properties
+                const name = data.name;
+                const id = data.id;
 
-                // Set the QR code image dynamically
-                scannedImageElement.src = "";
+                // Set the scanned data dynamically
+                scannedDataElement.innerText = name;
+
+                // Construct the URL for viewing the user
+                const viewUserUrl = `/view/${id}`;
+
+                // Set the "href" attribute of the "View User" link to the constructed URL
+                const link = document.getElementById('RedLink');
+                link.setAttribute('href', viewUserUrl);
 
                 // Show the modal
                 new bootstrap.Modal(document.getElementById('scanResultModal')).show();
@@ -94,6 +102,12 @@
         // Stop the QR code scanner when the page is unloaded
         window.addEventListener('beforeunload', () => {
             scanner.stop();
+        });
+           // Add click event listener to the "Next" button
+        const nextButton = document.getElementById('NextButton');
+        nextButton.addEventListener('click', () => {
+            // Reload the page to initiate a new scan
+            location.reload();
         });
     });
 </script>

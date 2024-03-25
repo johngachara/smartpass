@@ -169,7 +169,7 @@ def convert_to_qr(request, user_id):
         return render(request, 'await.html')
     instance_photo = UserPhoto.objects.filter(user=instance).first()
     instance_details = UserDetails.objects.get(user=instance)
-    data_to_encode = {'name':f"{instance.first_name} {instance.last_name}",'admission':instance_details.admission_number} # Customize based on your model fields
+    data_to_encode = {'name':f"{instance.first_name} {instance.last_name}",'admission':instance_details.admission_number,'id':instance.id} # Customize based on your model fields
     qr = qrcode.QRCode(
         version=1,
         box_size=10,
@@ -210,8 +210,11 @@ def activate_user_page(request):
 def view_inactive_user(request, user_id):
     user = User.objects.get(pk=user_id)
     picture = UserPhoto.objects.filter(user=user).first()
-
-    return render(request, 'view_user.html', {"user": user, "picture": picture})
+    print(picture)
+    details = UserDetails.objects.filter(user=user).first()
+    if details:
+        details = details.school_id
+    return render(request, 'view_user.html', {"user": user, "picture": picture,"details": details})
 #For Serverside
 def decline_inactive_user(request, user_id):
     user = User.objects.get(pk=user_id)
@@ -295,6 +298,3 @@ def deactivate(request, id):
         return Response({'Message': 'User is deactivated'})
 
 
-def get_user_details(request,id):
-    user = User.objects.get(pk=id)
-    user_data = UserDetails.objects.get(user=user)
