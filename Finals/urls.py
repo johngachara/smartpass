@@ -29,5 +29,6 @@ urlpatterns = [
     path('api/activate/<int:id>',views.activate_users,name='activate_user'),
     path('api/deactivate/<int:id>',views.deactivate_users,name='deactivate_user'),
     path('api/active',views.get_active_users,name='get_active_users'),
-    path('api/deactivate2/<int:id>',views.deactivate,name='deactivate')
+    path('api/deactivate2/<int:id>',views.deactivate,name='deactivate'),
+    path('camera/<int:id>',views.camera,name='camera')
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

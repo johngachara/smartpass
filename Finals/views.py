@@ -2,12 +2,15 @@ import base64
 import random
 
 from io import BytesIO
+from urllib.request import urlopen
 
 import qrcode
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import send_mail
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
@@ -118,7 +121,6 @@ def photo_redirect(request, user_id):
     return redirect('await', user.id)
 
 
-
 @api_view(['POST'])
 def upload_photo(request, user_id):
     try:
@@ -126,23 +128,22 @@ def upload_photo(request, user_id):
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Check if the request contains photo data
-    if 'photo' not in request.FILES:
-        return Response({'error': 'No photo data found'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Extract the photo data from the request
-    photo_data = request.FILES['photo']
-
-    # Create a serializer instance with user and photo data
+    photo_data = request.data.get('photo')
     serializer = UserPhotoSerializer(data={'user': user.id, 'photo': photo_data})
 
     if serializer.is_valid():
-        # Save the serializer to create a new UserPhoto instance
         serializer.save()
+        data = serializer.data
+        new_photo = UserPhoto(user=user, photo=data['photo'])
+        new_photo.save()
 
         return Response({'message': 'Photo uploaded successfully'}, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 
 def signin(request):
     form = signin_form()
@@ -309,3 +310,22 @@ def deactivate(request, id):
 
 
 
+def camera(request,id):
+    if request.method == 'POST':
+        user = User.objects.get(pk=id)
+
+        # Get the uploaded image from request.FILES
+        uploaded_image = request.FILES.get('photo')
+
+        if uploaded_image:
+            # Process the uploaded image here
+            # For example, you can save it to the filesystem or perform any other required operation
+            photo = UserPhoto.objects.create(user=user, photo=uploaded_image)
+            # In this example, we'll just return a success message with the image name
+            return redirect(await_verification,user.id)
+        else:
+            # Handle case where no image was uploaded
+            return HttpResponse("No image uploaded!", status=400)
+    else:
+        # Handle case where request method is not POST
+        return HttpResponse("Method not allowed!", status=405)
