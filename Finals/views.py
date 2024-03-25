@@ -5,7 +5,7 @@ from io import BytesIO
 from urllib.request import urlopen
 
 import qrcode
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
@@ -142,7 +142,7 @@ def upload_photo(request, user_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def logout(request):
+def logout_view(request):
     logout(request)
     return redirect('signin')
 
