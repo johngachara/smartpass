@@ -118,6 +118,7 @@ def photo_redirect(request, user_id):
     return redirect('await', user.id)
 
 
+
 @api_view(['POST'])
 def upload_photo(request, user_id):
     try:
@@ -125,19 +126,23 @@ def upload_photo(request, user_id):
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    photo_data = request.data.get('photo')
+    # Check if the request contains photo data
+    if 'photo' not in request.FILES:
+        return Response({'error': 'No photo data found'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Extract the photo data from the request
+    photo_data = request.FILES['photo']
+
+    # Create a serializer instance with user and photo data
     serializer = UserPhotoSerializer(data={'user': user.id, 'photo': photo_data})
 
     if serializer.is_valid():
+        # Save the serializer to create a new UserPhoto instance
         serializer.save()
-        data = serializer.data
-        new_photo = UserPhoto(user=user, photo=data['photo'])
-        new_photo.save()
 
         return Response({'message': 'Photo uploaded successfully'}, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 def signin(request):
     form = signin_form()
