@@ -87,8 +87,8 @@ def verify_code(request, user_id):
             del request.session['verification_code']
             return redirect('bind', user.id)
         else:
-
-            return render(request, 'verify.html', {"User_id": user.id})
+            message = 'invalid verification code'
+            return render(request, 'verify.html', {"User_id": user.id, "message": message})
 
     return render(request, 'verify.html', {"User_id": user.id})
 
