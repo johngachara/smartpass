@@ -65,7 +65,7 @@
                     const userId = document.getElementById('user-id').getAttribute('data-user-id');
 
                     // Send a POST request to your Django API endpoint
-                    fetch(`https://gachara.pythonanywhere.com/api/photo/${userId}/`, {
+                    fetch(`http://127.0.0.1:8000/api/photo/${userId}/`, {
                             method: 'POST',
                         headers:{
                                "Content-Type": "multipart/form-data",
