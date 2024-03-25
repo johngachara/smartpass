@@ -293,3 +293,8 @@ def deactivate(request, id):
         user.is_active = False
         user.save()
         return Response({'Message': 'User is deactivated'})
+
+
+def get_user_details(request,id):
+    user = User.objects.get(pk=id)
+    user_data = UserDetails.objects.get(user=user)
