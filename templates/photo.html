@@ -67,6 +67,9 @@
                     // Send a POST request to your Django API endpoint
                     fetch(`https://gachara.pythonanywhere.com/api/photo/${userId}/`, {
                             method: 'POST',
+                        headers:{
+                               "Content-Type": "application/json",
+                        },
                             body: formData,
                         })
                         .then(response => {
